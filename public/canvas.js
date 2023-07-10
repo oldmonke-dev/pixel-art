@@ -11,7 +11,7 @@ var imgData = ctx.createImageData(1000, 1000);
 var socket = io();
 
 
-
+/* generating random noise 
 for (var i = 0; i < imgData.data.length; i += 4) {
 
 
@@ -20,7 +20,7 @@ for (var i = 0; i < imgData.data.length; i += 4) {
   imgData.data[i + 2] = Math.random() * 255;
   imgData.data[i + 3] = 255;
 
-}
+}*/
 
 
 
@@ -57,7 +57,14 @@ canvas.addEventListener("click", e => {
   var x = parseInt((e.clientX - rect.left) / (zoom));
   var y = parseInt((e.clientY - rect.top) / (zoom));
   console.log(x + "," + y)
-  
+ 
+
+  var newdata = new ImageData(1,1);
+  newdata.data[0] = 0;
+  newdata.data[1] = 0;
+  newdata.data[2] =0;
+  newdata.data[3] = 255;
+  ctx.putImageData(newdata, x, y);
   /*
   x = Math.floor(this.width x / canvas.clientWidth); 
   y = Math.floor(this.height  y / canvas.clientHeight); 
@@ -68,18 +75,4 @@ canvas.addEventListener("click", e => {
 
 
 
-
-
-
-
-
-
-
-
-
-// write a function to convert x,y,color data into redis; 
-// convert redis data to imgPutdata
-
-
-
-
+// Tranform X,Y values and Color to ImageData

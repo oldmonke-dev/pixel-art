@@ -1,19 +1,27 @@
-
 <!DOCTYPE html>
 <html>
+
 <head>
     <script src="https://unpkg.com/@panzoom/panzoom@4.5.0/dist/panzoom.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 </head>
-<body>
- <center>
- <div id="div-container">
- <canvas style="image-rendering: pixelated; cursor: default; width:1000px; height: 1000px;" id="canvas"></canvas>
- <canvas style="image-rendering: pixelated;" id="my_canvas"></canvas></div>
-</center>
- <script src="canvas.js"></script>
- <p id="p"></p>
-<div id>
-    <button onclick="panzoom.reset();">Click me</button>
+
+<body style="overflow: hidden;">
+    <center>
+        <div id="div-container">
+            <canvas style="image-rendering: pixelated; cursor: default; width:1000px; height: 1000px; border: 1px solid black;
+ " id="canvas"></canvas>
+            <canvas style="image-rendering: pixelated;" id="my_canvas"></canvas>
+        </div>
+    </center>
+    <script src="canvas.js"></script>
+    <p id="p"></p>
+    <div id>
 </body>
+<button onclick="panzoom.reset();" style="position: absolute; bottom: 16px;
+	left: 16px;
+	display: flex;
+	flex-direction: row;">Reset </button>
+</body>
+
 </html>

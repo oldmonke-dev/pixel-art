@@ -1,7 +1,5 @@
 
-// this file is all server side. 
-// add redis code here as well, so we a user does an event on client side it is published to redis. 
-// implement publisher and suscriber 
+// this file is all server 
 
 const express = require ('express');
 const app = express();
@@ -10,12 +8,8 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 
-
-
-
-
+// Server Static Files in public 
 app.use(express.static("public"))
-
 
 
 /*
@@ -28,7 +22,6 @@ io.on("connection", socket =>{
     })
 })
 */
-
 
 
 server.listen(3000)
