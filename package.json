@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
+    "panzoom": "^9.4.3",
+    "redis": "^4.6.7",
     "socket.io": "^4.7.1"
   }
 }

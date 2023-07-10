@@ -1,8 +1,13 @@
 
-const express = require ('express'), 
-    app = express(),
-    server = require("http").createServer(app),
-    io = require("socket.io") (server) 
+// this file is all server side. 
+// add redis code here as well, so we a user does an event on client side it is published to redis. 
+// implement publisher and suscriber 
+
+const express = require ('express');
+const app = express();
+const server = require("http").createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 
 
@@ -10,6 +15,7 @@ const express = require ('express'),
 
 
 app.use(express.static("public"))
+
 
 
 /*
