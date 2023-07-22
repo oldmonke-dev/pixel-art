@@ -1,5 +1,7 @@
 
 // this file is all client side. 
+
+
 // add a function to get x,y, color values of the data
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
@@ -8,8 +10,21 @@ canvas.width = 1000;
 ctx.imagesmoothingEnabled = false;
 var imgData = ctx.createImageData(1000, 1000);
 
-var socket = io();
+var buttonblue = document.getElementById('button-blue');
+var buttonred = document.getElementById('button-red');
+var buttonyellow = document.getElementById('button-yellow');
+var buttongreen = document.getElementById('button-green');
 
+
+
+
+
+
+const socket = io();
+socket.on("connection", () =>{
+  alert("You have connected with id: ", socket.id);
+  // socket.on('init-redis', (bitfield)=>{  convert image data and put in canvas}  )
+})
 
 /* generating random noise 
 for (var i = 0; i < imgData.data.length; i += 4) {
@@ -32,9 +47,15 @@ ctx.putImageData(imgData, 0, 0);
 var container = document.getElementById('div-container')
 
 const panzoom = Panzoom(container, {
+  beforeMouseDown: function(e) {
+    // allow mouse-down panning only if altKey is down. Otherwise - ignore
+    var shouldIgnore = !e.altkey;
+    return shouldIgnore;
+  }, 
   transformOrigin: {x: 0.5, y: 0.5},
   maxScale: 20,
-  startScale: 1
+  startScale: 1, 
+  
 })
 //panzoom.pan(10, 10)
 //panzoom.zoom(2, { animate: true })
@@ -51,20 +72,72 @@ console.log(panzoom.getPan());
 var my_canvas = document.getElementById('draw_canvas');
 var ctx2 = canvas.getContext('2d');
 
-canvas.addEventListener("click", e => {
+
+
+
+
+var newdata = new ImageData(1,1);
+newdata.data[0] = 0;
+  newdata.data[1] = 0;
+  newdata.data[2] =0;
+  newdata.data[3] = 255;
+  colorinfo = "black"
+
+buttonblue.addEventListener('click', () => {
+  
+  newdata.data[0] = 0;
+  newdata.data[1] = 0;
+  newdata.data[2] =255;
+  newdata.data[3] = 255;
+  colorinfo = "blue"
+})
+buttonred.addEventListener('click', () => {
+  
+  newdata.data[0] = 255;
+  newdata.data[1] = 0;
+  newdata.data[2] =0;
+  newdata.data[3] = 255;
+  colorinfo = "red"
+})
+buttongreen.addEventListener('click', () => {
+  
+  newdata.data[0] = 0;
+  newdata.data[1] = 255;
+  newdata.data[2] =0;
+  newdata.data[3] = 255;
+  colorinfo = "green"
+})
+buttonyellow.addEventListener('click', () => {
+  
+  newdata.data[0] = 255;
+  newdata.data[1] = 255;
+  newdata.data[2] =0;
+  newdata.data[3] = 255;
+  colorinfo = 'yellow'
+})
+
+
+
+canvas.addEventListener("contextmenu", e => {
+  e.preventDefault()
   var rect = canvas.getBoundingClientRect();
   var zoom = panzoom.getScale();
   var x = parseInt((e.clientX - rect.left) / (zoom));
   var y = parseInt((e.clientY - rect.top) / (zoom));
   console.log(x + "," + y)
  
-
-  var newdata = new ImageData(1,1);
-  newdata.data[0] = 0;
-  newdata.data[1] = 0;
-  newdata.data[2] =0;
-  newdata.data[3] = 255;
+ // rgb
+ 
+  socket.emit("color-update", x,y, colorinfo)
+  
+  
+ 
   ctx.putImageData(newdata, x, y);
+
+
+  // we can send data to server itself here 
+
+
   /*
   x = Math.floor(this.width x / canvas.clientWidth); 
   y = Math.floor(this.height  y / canvas.clientHeight); 
@@ -73,6 +146,25 @@ canvas.addEventListener("click", e => {
 });
 
 
+ 
+ // this how you send events to the server
+ /*
+  canvas.addEventListener("click", e => {
+    e.preventDefault();
+    var x =0;
+    if(x){
+      // is the input value
+      // here we are going to send changes to the canvas redis database.
+      socket.emit("color-update", x);
+    }
 
+  })
 
+  // listen to the server emit
+  socket.on("color-update", function(msg) {
+    console.log(msg);
+    // here we are going the update canvas image data 
+  })
 // Tranform X,Y values and Color to ImageData
+
+*/
