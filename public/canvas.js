@@ -47,9 +47,11 @@ ctx.putImageData(imgData, 0, 0);
 var container = document.getElementById('div-container')
 
 const panzoom = Panzoom(container, {
-  beforeMouseDown: function(e) {
+  
+  beforeMouseDown: function(event) {
+   
     // allow mouse-down panning only if altKey is down. Otherwise - ignore
-    var shouldIgnore = !e.altkey;
+    var shouldIgnore = !event.altKey;
     return shouldIgnore;
   }, 
   transformOrigin: {x: 0.5, y: 0.5},
@@ -76,12 +78,9 @@ var ctx2 = canvas.getContext('2d');
 
 
 
+var colorinfo;
 var newdata = new ImageData(1,1);
-newdata.data[0] = 0;
-  newdata.data[1] = 0;
-  newdata.data[2] =0;
-  newdata.data[3] = 255;
-  colorinfo = "black"
+
 
 buttonblue.addEventListener('click', () => {
   
