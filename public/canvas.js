@@ -1,5 +1,5 @@
 
-// this file is all client side. 
+// client file 
 
 
 // add a function to get x,y, color values of the data
@@ -167,3 +167,39 @@ canvas.addEventListener("contextmenu", e => {
 // Tranform X,Y values and Color to ImageData
 
 */
+
+socket.on('redis-update', (x,y,value)=>{
+  var data = new ImageData(1,1);
+  switch (value){
+    case 0:
+      data.data[0] = 255;
+      data.data[1] = 0;
+      data.data[2] =0;
+      data.data[3] = 255;
+      ctx.putImageData(data, x, y);
+      break;
+    case 1:
+      data.data[0] = 0;
+      data.data[1] = 255;
+      data.data[2] =0;
+      data.data[3] = 255;
+      ctx.putImageData(data, x, y);
+      break;
+    case 2:
+      data.data[0] = 0;
+      data.data[1] = 0;
+      data.data[2] =255;
+      data.data[3] = 255;
+      ctx.putImageData(data, x, y);
+      break;
+    case 3:
+      data.data[0] = 255;
+      data.data[1] = 255;
+      data.data[2] =0;
+      data.data[3] = 252;
+      ctx.putImageData(data, x, y);
+      break;
+    default: 
+     console.log('no response')
+  }
+})

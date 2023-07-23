@@ -1,10 +1,12 @@
-
-// this file is all server 
+// server file  
 const redis = require('redis');
+
+
 const express = require ('express');
 const app = express();
 const server = require("http").createServer(app);
 const { Server } = require("socket.io");
+const { get } = require('http');
 const io = new Server(server);
 
 
@@ -56,7 +58,7 @@ io.on("connection", socket =>{
   console.log("Hello, connection made", socket.id);
   
   
- 
+ // value of bitfields is set by increments?
   // on update write changes to redis
   socket.on("color-update", (x,y,colorinfo)=>{
     var color;
@@ -75,6 +77,7 @@ io.on("connection", socket =>{
           value: 0
         }])
         break;
+        
       case 'blue':
         color = 2;
         for(let i=0;i<=color;i++) {
@@ -85,8 +88,8 @@ io.on("connection", socket =>{
             value: i
           }])
         }
-        
         break;
+        
       case 'yellow':
         color = 3;
         
@@ -111,25 +114,47 @@ io.on("connection", socket =>{
         break;
 
       default:
-        color =1
-        for(let i=0;i<=color;i++) {
-          client.bitField('canvas', [{
-            operation: 'SET',
-            encoding: 'u2',
-            offset: '#',offset,
-            value: i
-          }])
+       
         // code block
     }
-   
-  }
-     
+    
+
+    client.bitField('canvas', [{
+      operation: 'GET',
+      encoding: 'u2',
+      offset: '#',offset, 
+    }]).then((value)=>{
+      socket.broadcast.emit('redis-update', x,y,parseInt(value))
+      console.log(value)
+    });
+    
+   // socket.broadcast.emit('redis-update', x,y,getOffsetValue(offset))
+
   })
+     
+  
 
   // emit redis changes to all clients
  // socket.emit('canvas-sync', )
 })
+/*
+function getOffsetValue(offset){
 
+  var colorval;
+  client.bitField('canvas', [{
+    operation: 'GET',
+    encoding: 'u2',
+    offset: '#',offset, 
+  }]).then((value)=>{
+    colorval[0] = value
+  });
+ 
+
+  
+   return colorval;
+ 
+  
+}*/
 //  sudo systemctl restart redis-server
 
 server.listen(3000)
