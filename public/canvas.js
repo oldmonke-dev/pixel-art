@@ -18,12 +18,23 @@ var buttongreen = document.getElementById('button-green');
 
 
 
-
+let fetchRes = fetch(
+  "http://localhost:3000/getboard");
+  // fetchRes is the promise to resolve
+  // it by using.then() method
+  fetchRes.then(res =>
+      res.json()).then(d => {
+          console.log(d)
+      })
 
 const socket = io();
 socket.on("connection", () =>{
   alert("You have connected with id: ", socket.id);
   // socket.on('init-redis', (bitfield)=>{  convert image data and put in canvas}  )
+  // reading initial canvas state
+
+
+
 })
 
 /* generating random noise 

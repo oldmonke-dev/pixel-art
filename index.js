@@ -10,11 +10,57 @@ const { get } = require('http');
 const io = new Server(server);
 
 
+
+
 const client = redis.createClient();
 client.on('error', err => console.log('Redis Client Error', err));
  client.connect();
 // Server Static Files in public 
 app.use(express.static("public"))
+
+
+app.get('/getboard', (req, res) => {
+  
+  res.setHeader('Content-Type', 'application/json');
+  
+  
+  var data = {}
+  // data.table = []
+ 
+  //client.getRange('canvas',999,999999).then(value=>{
+  //  res.send(JSON.stringify(value))
+ //  })
+  client.json.get('canvas').then((value)=>res.send(value))
+  /*for (i=0;i<1000;i++){
+    for(j=0;j<1000;j++){
+
+      offset_init = i + 1000*j
+      
+      client.bitField('canvas', [{
+        operation: 'GET',
+        encoding: 'u2',
+        offset: offset_init, 
+
+      }]).then(((i,j,data)=>(res)=>{
+        var obj = {
+          x_pos: i,
+          y_pos: j,
+          val: res,
+        }
+        
+      })(i,j,data))
+      
+    data.table.push(obj)
+      
+    }
+  }*/
+  
+ 
+  
+
+  // res.send(JSON.stringify(data))
+})
+
 /*
 
 const subscriber = redis.createClient({
@@ -73,7 +119,7 @@ io.on("connection", socket =>{
         client.bitField('canvas', [{
           operation: 'SET',
           encoding: 'u2',
-          offset: '#', offset,
+          offset: offset,
           value: 0
         }])
         break;
@@ -84,7 +130,7 @@ io.on("connection", socket =>{
           client.bitField('canvas', [{
             operation: 'SET',
             encoding: 'u2',
-            offset: '#',offset,
+            offset: offset,
             value: i
           }])
         }
@@ -97,7 +143,7 @@ io.on("connection", socket =>{
             client.bitField('canvas', [{
               operation: 'SET',
               encoding: 'u2',
-              offset: '#',offset,
+              offset: offset,
               value: i
             }]) }
         
@@ -108,7 +154,7 @@ io.on("connection", socket =>{
           client.bitField('canvas', [{
             operation: 'SET',
             encoding: 'u2',
-            offset: '#',offset,
+            offset: offset,
             value: i
           }])}
         break;
@@ -122,7 +168,7 @@ io.on("connection", socket =>{
     client.bitField('canvas', [{
       operation: 'GET',
       encoding: 'u2',
-      offset: '#',offset, 
+      offset: offset, 
     }]).then((value)=>{
       socket.broadcast.emit('redis-update', x,y,parseInt(value))
       console.log(value)
@@ -155,6 +201,8 @@ function getOffsetValue(offset){
  
   
 }*/
+
+// start redis server
 //  sudo systemctl restart redis-server
 
 server.listen(3000)
