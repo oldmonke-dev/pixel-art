@@ -1,0 +1,366 @@
+// server file  
+//http://localhost:27017/ MongoDB URI
+//  sudo systemctl starts mongod
+
+// x,y,pixel num => schema for mongodb
+const redis = require('redis');
+
+
+const express = require ('express');
+const app = express();
+const server = require("http").createServer(app);
+const { Server } = require("socket.io");
+const { get } = require('http');
+const io = new Server(server);
+const  {MongoClient} = require("mongodb");
+
+
+
+const client = redis.createClient();
+client.on('error', err => console.log('Redis Client Error', err));
+ client.connect();
+// Server Static Files in public 
+app.use(express.static("public"))
+
+var uri ="mongodb://0.0.0.0:27017";
+const mgclient = new MongoClient(uri);
+
+
+/*
+var data1 = {}
+data1.table = []
+for (i=0;i<334;i++){
+  for(j=0;j<334;j++){
+      var obj = {
+      x_pos: i,
+      y_pos: j,
+      val: 0,
+      }
+      
+    
+      data1.table.push(obj)
+    }
+    
+  }
+
+
+  var data2 = {}
+  data2.table = []
+  for (i=334;i<667;i++){
+    for(j=334;j<667;j++){
+        var obj = {
+        x_pos: i,
+        y_pos: j,
+        val: 0,
+        }
+        
+      
+        data2.table.push(obj)
+      }
+      
+    }
+
+    var data3 = {}
+    data3.table = []
+    for (i=667;i<1000;i++){
+      for(j=667;j<1000;j++){
+          var obj = {
+          x_pos: i,
+          y_pos: j,
+          val: 0,
+          }
+          
+        
+          data3.table.push(obj)
+        }
+        
+      }
+/*
+  const FileSystem = require("fs");
+  FileSystem.writeFile('file.json', JSON.stringify(data), (error) => {
+     if (error) throw error;
+   });
+*/
+
+const database = mgclient.db('board_canvas');
+const canvas  = database.collection('canvas');
+// const bucket = new mgclient.GridFSBucket(canvas);
+/*
+fs.createReadStream('./file').
+     pipe(bucket.openUploadStream('file', {
+         chunkSizeBytes: 1000000,
+         
+     }));
+*/
+/*
+canvas.insertMany([data1], function(err, res) {
+    if (err) throw err;
+    console.log("Number of documents inserted: " + res.insertedCount);
+    
+  });
+
+  canvas.insertMany([data2], function(err, res) {
+    if (err) throw err;
+    console.log("Number of documents inserted: " + res.insertedCount);
+    
+  });
+
+  canvas.insertMany([data3], function(err, res) {
+    if (err) throw err;
+    console.log("Number of documents inserted: " + res.insertedCount);
+    
+  });*/
+  app.get("/home", async (req, res) => {
+   
+    const results = await database.collection('canvas').find({})
+    console.log(results)
+  
+    // res.send(JSON.stringify(results)).status(200);
+  });
+
+var fileSystem = require( "fs" );
+var JSONStream = require( "JSONStream" );
+var records = [
+    { id: 1, name: "Terminator" },
+    { id: 2, name: "Predator" },
+    { id: 3, name: "True Lies" },
+    { id: 4, name: "Running Man" },
+    { id: 5, name: "Twins" }
+    // .... hundreds of thousands of records ....
+];
+
+app.get('/getboard',  (req, res) => {
+  
+  res.setHeader('Content-Type', 'application/json');
+  // encorporating mongoDB
+  
+  /*
+  MongoClient.connect(uri, function (err, client) {
+  if (err) throw err;
+
+  var db = client.db('board_canvas');
+
+  
+*/
+
+  database.collection('canvas').find({}, function (findErr, result) {
+    if (findErr) throw findErr;
+    
+   
+  console.log(result)
+  
+   
+  // res.sendFile(__dirname + "/result.json");
+  });
+
+// });  
+  
+
+
+  
+  /*
+  client
+  .multi()
+  .bitField('canvas', [{
+    operation: 'SET',
+    encoding: 'u2',
+    offset: offset,
+    value: i
+  }])
+  .bitField
+  .exec(); // ['OK', 'another-value']
+  
+  */
+  
+  // data.table = []
+ 
+  //client.getRange('canvas',999,999999).then(value=>{
+  //  res.send(JSON.stringify(value))
+ //  })
+ //  client.json.get('canvas').then((value)=>res.send(value))
+
+
+
+ /*
+  for (i=0;i<1000;i++){
+    for(j=0;j<1000;j++){
+
+      offset_init = i + 1000*j
+      
+      client.bitField('canvas', [{
+        operation: 'GET',
+        encoding: 'u2',
+        
+        offset: offset_init, 
+
+      }]).then(((i,j,data)=>(res)=>{
+        var obj = {
+          x_pos: i,
+          y_pos: j,
+          val: res,
+        }
+        
+      })(i,j,data))
+      
+    data.table.push(obj)
+      
+    }
+  }
+  
+ */
+  /*
+  client
+  .multi()
+  .bitField('canvas', [{
+    operation: 'SET',
+    encoding: 'u2',
+    offset: offset,
+    value: i
+  }])
+  .exec(); // ['OK', 'another-value']
+  
+  client.getRange('canvas',0,999999).then(value=>{
+    res.send(JSON.stringify((value)))
+  })*/
+})
+
+/*
+
+const subscriber = redis.createClient({
+    port      : 6379,              
+    host      : 'rds'} );
+  
+  const publisher = redis.createClient({
+    port      : 6379,              
+    host      : 'rds'} );
+
+    
+
+io.on("connection", socket =>{
+    console.log("user has connected");
+    socket.on("disconnect", ()=>{
+        console.log("user disconnected");
+    });
+
+    // server recieves the event from first client and decides the action
+    socket.on("color-update", (msg)=>{
+        
+        // the action here is to send message to all the clients
+        io.emit("color-update", msg)
+    })
+    // emit that to all the clients connected
+    
+})
+
+*/
+
+
+
+
+io.on("connection", socket =>{
+  console.log("Hello, connection made", socket.id);
+  
+  
+ // value of bitfields is set by increments?
+  // on update write changes to redis
+  socket.on("color-update", (x,y,colorinfo)=>{
+    var color;
+
+    console.log(x,y,colorinfo);
+    var offset = x + 1000*y;
+    switch(colorinfo) {
+      case 'red':
+        // code block
+        color = 0;
+        
+        client.bitField('canvas', [{
+          operation: 'SET',
+          encoding: 'u2',
+          offset: offset,
+          value: 0
+        }])
+        break;
+        
+      case 'blue':
+        color = 2;
+        for(let i=0;i<=color;i++) {
+          client.bitField('canvas', [{
+            operation: 'SET',
+            encoding: 'u2',
+            offset: offset,
+            value: i
+          }])
+        }
+        break;
+        
+      case 'yellow':
+        color = 3;
+        
+          for(let i=0;i<=color;i++) {
+            client.bitField('canvas', [{
+              operation: 'SET',
+              encoding: 'u2',
+              offset: offset,
+              value: i
+            }]) }
+        
+        break;
+      case 'green':
+        color = 1;
+        for(let i=0;i<=color;i++) {
+          client.bitField('canvas', [{
+            operation: 'SET',
+            encoding: 'u2',
+            offset: offset,
+            value: i
+          }])}
+        break;
+
+      default:
+       
+        // code block
+    }
+    
+
+    client.bitField('canvas', [{
+      operation: 'GET',
+      encoding: 'u2',
+      offset: offset, 
+    }]).then((value)=>{
+      socket.broadcast.emit('redis-update', x,y,parseInt(value))
+      console.log(value)
+      database.collection('canvas').insertOne({ x_pos: x, y_pos: y, val: value  });
+    });
+    
+   // socket.broadcast.emit('redis-update', x,y,getOffsetValue(offset))
+
+  })
+     
+  
+
+  // emit redis changes to all clients
+ // socket.emit('canvas-sync', )
+})
+/*
+function getOffsetValue(offset){
+
+  var colorval;
+  client.bitField('canvas', [{
+    operation: 'GET',
+    encoding: 'u2',
+    offset: '#',offset, 
+  }]).then((value)=>{
+    colorval[0] = value
+  });
+ 
+
+  
+   return colorval;
+ 
+  
+}*/
+
+// start redis server
+//  sudo systemctl restart redis-server
+
+server.listen(3000)

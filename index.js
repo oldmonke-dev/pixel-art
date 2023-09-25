@@ -1,4 +1,7 @@
-// server file  
+// start redis server
+// sudo systemctl restart redis-server
+// sudo systemctl restart mongod
+// uncomment mongoDB insertCommands while running the first time
 const redis = require('redis');
 
 
@@ -6,106 +9,71 @@ const express = require ('express');
 const app = express();
 const server = require("http").createServer(app);
 const { Server } = require("socket.io");
-const { get } = require('http');
 const io = new Server(server);
-
+const  {MongoClient} = require("mongodb");
+// const { table } = require('console');
 
 
 
 const client = redis.createClient();
 client.on('error', err => console.log('Redis Client Error', err));
- client.connect();
-// Server Static Files in public 
+client.connect();
+
 app.use(express.static("public"))
 
+var uri ="mongodb://0.0.0.0:27017";
+const mgclient = new MongoClient(uri);
+const database = mgclient.db('board_canvas');
+const canvas  = database.collection('canvas');
 
-app.get('/getboard', (req, res) => {
-  
-  res.setHeader('Content-Type', 'application/json');
-  
-  
-  var data = {}
-  // data.table = []
- 
-  //client.getRange('canvas',999,999999).then(value=>{
-  //  res.send(JSON.stringify(value))
- //  })
-  client.json.get('canvas').then((value)=>res.send(value))
-  /*for (i=0;i<1000;i++){
-    for(j=0;j<1000;j++){
 
-      offset_init = i + 1000*j
-      
-      client.bitField('canvas', [{
-        operation: 'GET',
-        encoding: 'u2',
-        offset: offset_init, 
-
-      }]).then(((i,j,data)=>(res)=>{
-        var obj = {
-          x_pos: i,
-          y_pos: j,
-          val: res,
-        }
-        
-      })(i,j,data))
-      
-    data.table.push(obj)
-      
+/*var count  = async ()=>{await database.collection('canvas').estimatedDocumentCount();}
+console.log(count)
+if(count==0){
+*/ 
+var table = []
+for (i=0;i<1000;i++){
+  for(j=0;j<1000;j++){
+      var obj = {
+      x_pos: i,
+      y_pos: j,
+      val: 0,
+      }
+     table.push(obj)
     }
-  }*/
-  
- 
-  
-
-  // res.send(JSON.stringify(data))
-})
-
-/*
-
-const subscriber = redis.createClient({
-    port      : 6379,              
-    host      : 'rds'} );
-  
-  const publisher = redis.createClient({
-    port      : 6379,              
-    host      : 'rds'} );
-
     
-
-io.on("connection", socket =>{
-    console.log("user has connected");
-    socket.on("disconnect", ()=>{
-        console.log("user disconnected");
-    });
-
-    // server recieves the event from first client and decides the action
-    socket.on("color-update", (msg)=>{
-        
-        // the action here is to send message to all the clients
-        io.emit("color-update", msg)
-    })
-    // emit that to all the clients connected
-    
-})
-
-*/
-function redisIn(x,y,colorinfo){
-
-
 }
+console.log(table)
+canvas.insertMany(table, function(err, res) {
+  if (err) throw err;
+  
+  
+});
 
 
-function redisOut(){
-    // get lastest color update from the redis server 
-}
+ // }
+
+
+
+
+
+app.get("/getboard", async (req, res) => {
+   
+   const result = await canvas.find({})
+   const allValues = await result.toArray();
+
+   res.send(allValues)
+    // res.send(JSON.stringify(results)).status(200);
+  });
+
+
+
 
 io.on("connection", socket =>{
   console.log("Hello, connection made", socket.id);
   
   
- // value of bitfields is set by increments?
-  // on update write changes to redis
+ 
   socket.on("color-update", (x,y,colorinfo)=>{
     var color;
 
@@ -161,7 +129,7 @@ io.on("connection", socket =>{
 
       default:
        
-        // code block
+       
     }
     
 
@@ -169,40 +137,22 @@ io.on("connection", socket =>{
       operation: 'GET',
       encoding: 'u2',
       offset: offset, 
-    }]).then((value)=>{
+    }]).then(async(value)=>{
       socket.broadcast.emit('redis-update', x,y,parseInt(value))
       console.log(value)
+      await  canvas.updateOne( { x_pos:x, y_pos:y }, {$set: {val: value},});
+     
+
     });
     
-   // socket.broadcast.emit('redis-update', x,y,getOffsetValue(offset))
+  
 
   })
      
   
 
-  // emit redis changes to all clients
- // socket.emit('canvas-sync', )
+
 })
-/*
-function getOffsetValue(offset){
 
-  var colorval;
-  client.bitField('canvas', [{
-    operation: 'GET',
-    encoding: 'u2',
-    offset: '#',offset, 
-  }]).then((value)=>{
-    colorval[0] = value
-  });
- 
-
-  
-   return colorval;
- 
-  
-}*/
-
-// start redis server
-//  sudo systemctl restart redis-server
 
 server.listen(3000)

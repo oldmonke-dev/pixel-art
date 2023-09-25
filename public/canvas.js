@@ -17,7 +17,7 @@ var buttongreen = document.getElementById('button-green');
 
 
 
-
+/*
 let fetchRes = fetch(
   "http://localhost:3000/getboard");
   // fetchRes is the promise to resolve
@@ -26,7 +26,7 @@ let fetchRes = fetch(
       res.json()).then(d => {
           console.log(d)
       })
-
+*/
 const socket = io();
 socket.on("connection", () =>{
   alert("You have connected with id: ", socket.id);
