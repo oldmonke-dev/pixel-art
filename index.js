@@ -3,7 +3,7 @@
 // sudo systemctl restart mongod
 // uncomment mongoDB insertCommands while running the first time
 const redis = require('redis');
-
+const path = require('path');
 
 const express = require ('express');
 const app = express();
@@ -15,144 +15,163 @@ const  {MongoClient} = require("mongodb");
 
 
 
-const client = redis.createClient();
-client.on('error', err => console.log('Redis Client Error', err));
-client.connect();
+const appName = 'pixel-art';
 
-app.use(express.static("public"))
+// Set the static folder for serving Angular files
+app.use(express.static(path.join(__dirname, 'client-src','dist', appName)));
 
-var uri ="mongodb://0.0.0.0:27017";
-const mgclient = new MongoClient(uri);
-const database = mgclient.db('board_canvas');
-const canvas  = database.collection('canvas');
+// Redirect all other requests to Angular's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client-src', 'dist', appName, 'browser', 'index.html'));
+});
 
+// Define the port (default to 3000 if not specified)
+const PORT = process.env.PORT || 3000;
 
-/*var count  = async ()=>{await database.collection('canvas').estimatedDocumentCount();}
-console.log(count)
-if(count==0){
-*/ 
-var table = []
-for (i=0;i<1000;i++){
-  for(j=0;j<1000;j++){
-      var obj = {
-      x_pos: i,
-      y_pos: j,
-      val: 0,
-      }
-     table.push(obj)
-    }
-    
-}
-console.log(table)
-canvas.insertMany(table, function(err, res) {
-  if (err) throw err;
-  
-  
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 
- // }
+// const client = redis.createClient();
+// client.on('error', err => console.log('Redis Client Error', err));
+// client.connect();
+
+// app.use(express.static("client-src/dist/pixel-art"))
+
+// var uri ="mongodb://0.0.0.0:27017";
+// const mgclient = new MongoClient(uri);
+// const database = mgclient.db('board_canvas');
+// const canvas  = database.collection('canvas');
+
+
+// /*var count  = async ()=>{await database.collection('canvas').estimatedDocumentCount();}
+// console.log(count)
+// if(count==0){
+// */ 
+// var table = []
+// for (i=0;i<1000;i++){
+//   for(j=0;j<1000;j++){
+//       var obj = {
+//       x_pos: i,
+//       y_pos: j,
+//       val: 0,
+//       }
+//      table.push(obj)
+//     }
+    
+// }
+// console.log(table)
+// canvas.insertMany(table, function(err, res) {
+//   if (err) throw err;
+  
+  
+// });
+
+
+//  // }
 
 
 
 
 
-app.get("/getboard", async (req, res) => {
+// app.get("/getboard", async (req, res) => {
    
-   const result = await canvas.find({})
-   const allValues = await result.toArray();
+//    const result = await canvas.find({})
+//    const allValues = await result.toArray();
 
-   res.send(allValues)
-    // res.send(JSON.stringify(results)).status(200);
-  });
-
-
+//    res.send(allValues)
+//     // res.send(JSON.stringify(results)).status(200);
+//   });
 
 
-io.on("connection", socket =>{
-  console.log("Hello, connection made", socket.id);
+
+
+// io.on("connection", socket =>{
+//   console.log("Hello, connection made", socket.id);
   
   
  
-  socket.on("color-update", (x,y,colorinfo)=>{
-    var color;
+//   socket.on("color-update", (x,y,colorinfo)=>{
+//     var color;
 
-    console.log(x,y,colorinfo);
-    var offset = x + 1000*y;
-    switch(colorinfo) {
-      case 'red':
-        // code block
-        color = 0;
+//     console.log(x,y,colorinfo);
+//     var offset = x + 1000*y;
+//     switch(colorinfo) {
+//       case 'red':
+//         // code block
+//         color = 0;
         
-        client.bitField('canvas', [{
-          operation: 'SET',
-          encoding: 'u2',
-          offset: offset,
-          value: 0
-        }])
-        break;
+//         client.bitField('canvas', [{
+//           operation: 'SET',
+//           encoding: 'u2',
+//           offset: offset,
+//           value: 0
+//         }])
+//         break;
         
-      case 'blue':
-        color = 2;
-        for(let i=0;i<=color;i++) {
-          client.bitField('canvas', [{
-            operation: 'SET',
-            encoding: 'u2',
-            offset: offset,
-            value: i
-          }])
-        }
-        break;
+//       case 'blue':
+//         color = 2;
+//         for(let i=0;i<=color;i++) {
+//           client.bitField('canvas', [{
+//             operation: 'SET',
+//             encoding: 'u2',
+//             offset: offset,
+//             value: i
+//           }])
+//         }
+//         break;
         
-      case 'yellow':
-        color = 3;
+//       case 'yellow':
+//         color = 3;
         
-          for(let i=0;i<=color;i++) {
-            client.bitField('canvas', [{
-              operation: 'SET',
-              encoding: 'u2',
-              offset: offset,
-              value: i
-            }]) }
+//           for(let i=0;i<=color;i++) {
+//             client.bitField('canvas', [{
+//               operation: 'SET',
+//               encoding: 'u2',
+//               offset: offset,
+//               value: i
+//             }]) }
         
-        break;
-      case 'green':
-        color = 1;
-        for(let i=0;i<=color;i++) {
-          client.bitField('canvas', [{
-            operation: 'SET',
-            encoding: 'u2',
-            offset: offset,
-            value: i
-          }])}
-        break;
+//         break;
+//       case 'green':
+//         color = 1;
+//         for(let i=0;i<=color;i++) {
+//           client.bitField('canvas', [{
+//             operation: 'SET',
+//             encoding: 'u2',
+//             offset: offset,
+//             value: i
+//           }])}
+//         break;
 
-      default:
+//       default:
        
        
-    }
+//     }
     
 
-    client.bitField('canvas', [{
-      operation: 'GET',
-      encoding: 'u2',
-      offset: offset, 
-    }]).then(async(value)=>{
-      socket.broadcast.emit('redis-update', x,y,parseInt(value))
-      console.log(value)
-      await  canvas.updateOne( { x_pos:x, y_pos:y }, {$set: {val: value},});
+//     client.bitField('canvas', [{
+//       operation: 'GET',
+//       encoding: 'u2',
+//       offset: offset, 
+//     }]).then(async(value)=>{
+//       socket.broadcast.emit('redis-update', x,y,parseInt(value))
+//       console.log(value)
+//       await  canvas.updateOne( { x_pos:x, y_pos:y }, {$set: {val: value},});
      
 
-    });
+//     });
     
   
 
-  })
+//   })
      
   
 
 
-})
+// })
 
 
-server.listen(3000)
+// server.listen(3000)
